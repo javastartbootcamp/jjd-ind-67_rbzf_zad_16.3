@@ -9,6 +9,8 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
 import java.util.*;
 
+import static java.lang.Integer.sum;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -43,27 +45,42 @@ public class Main {
 
     private LocalDateTime createModifiedLocalDateTime(String userInput) {
         LocalDateTime t = LocalDateTime.now();
-        Set<Character> keys = new LinkedHashSet<>(Arrays.asList('y', 'M', 'd', 'h', 'm', 's'));
-        Map<Character, Integer> map = new LinkedHashMap<>();
 
-        int indexStart = 1;
+        List<Character> keys = Arrays.asList('y', 'M', 'd', 'h', 'm', 's');
+        Map<Character, Integer> mapOfAllParameters = new HashMap<>();
         for (Character key : keys) {
-            if (userInput.contains(String.valueOf(key))) {
-                String stringValue = userInput.substring(indexStart, userInput.indexOf(String.valueOf(key)));
-                map.put(key, Integer.valueOf(stringValue));
-                indexStart = userInput.indexOf(String.valueOf(key)) + 1;
-            } else {
-                map.put(key, 0);
+            mapOfAllParameters.put(key, 0);
+        }
+
+        Map<Integer, Character> mapOfUsedParameters = new HashMap<>();
+        for (int i = 1; i < userInput.length(); i++) {
+            for (Character key : keys) {
+                if (userInput.charAt(i) == key) {
+                    mapOfUsedParameters.put(i, key);
+                }
             }
         }
 
+        List<Integer> list = new ArrayList<>(mapOfUsedParameters.keySet().stream().toList());
+        Collections.sort(list);
+
+        int indexStart = 1;
+        for (Integer element : list) {
+            String stringValue = userInput.substring(indexStart, element);
+            mapOfAllParameters.get(mapOfUsedParameters.get(element));
+            Integer newValue = sum(mapOfAllParameters.get(mapOfUsedParameters.get(element)), Integer.parseInt(stringValue));
+            mapOfAllParameters.put(mapOfUsedParameters.get(element), newValue);
+            indexStart = element + 1;
+
+        }
+
         LocalDateTime modified;
-        int yearsToAdd = map.get('y');
-        int monthToAdd = map.get('M');
-        int daysToAdd = map.get('d');
-        int hoursToAdd = map.get('h');
-        int minutesToAdd = map.get('m');
-        int secondsToAdd = map.get('s');
+        int yearsToAdd = mapOfAllParameters.get('y');
+        int monthToAdd = mapOfAllParameters.get('M');
+        int daysToAdd = mapOfAllParameters.get('d');
+        int hoursToAdd = mapOfAllParameters.get('h');
+        int minutesToAdd = mapOfAllParameters.get('m');
+        int secondsToAdd = mapOfAllParameters.get('s');
         modified = t.plusYears(yearsToAdd)
                 .plusMonths(monthToAdd)
                 .plusDays(daysToAdd)
